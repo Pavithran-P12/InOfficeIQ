@@ -1,73 +1,97 @@
-# 🧠 InOfficeIQ
+# 🏢 InOfficeIQ
 
-**Smart Tracker for Hybrid Employees**
+**InOfficeIQ** is a simple, interactive **Work Days Tracker** that helps you keep track of how many days you need to go to the office each month, based on your target office days, holidays, and personal leaves.
 
-InOfficeIQ is a lightweight, intelligent tool designed to help employees working in hybrid environments plan their in-office days more effectively. It factors in weekends, official holidays, and personal leaves to calculate how many days you need to attend office based on a monthly 10-day requirement.
-
----
-
-## 🎯 Objective
-
-Many modern workplaces follow a hybrid work model, requiring employees to attend the office for a minimum number of days per month (e.g., 10 days). InOfficeIQ simplifies this by:
-
-- Automatically calculating the number of working days in a given month.
-- Subtracting weekends, official holidays, and personal leaves.
-- Showing you exactly which days you **must** go to the office to fulfill your quota.
+The app is fully **click-based** — select days directly on the calendar to mark them as holidays, personal leaves, office days, or work-from-home days, and the tracker will instantly update your remaining required office days.
 
 ---
 
-## ⚙️ Logic Behind InOfficeIQ
-
-Let’s break it down with an example (August - 31 days):
-
-1. **Step 1**: Identify total days in the month → 31
-2. **Step 2**: Exclude weekends (e.g., 10 days if Sat–Sun) → 31 - 10 = 21 working days
-3. **Step 3**: You are allowed to work **11 days from home**, since you must go to the office only **10 days per month**
-4. **Step 4**: Further reduce working days by:
-   - Office Holidays (e.g., Aug 15, Aug 27)
-   - Personal Leaves (e.g., Aug 8, Aug 14)
-
-🧮 **Required In-Office Days** =  
-👉 (Working Days - Holidays - Personal Leaves)  
-👉 Out of the remaining, choose any 10 to visit the office
+## ✨ Features
+- 📅 Interactive calendar with click-to-toggle status
+- 🟥 Holiday, 🟧 Personal Leave, 🟦 Office Day, 🟩 Work From Home, and Weekend indicators
+- 📊 Automatic calculation of:
+  - Total working days
+  - WFH-eligible days
+  - Remaining required office days
+- 🔄 Navigation between previous, current, and next months
+- 💾 Option to store your selections locally for persistence (can be added)
 
 ---
 
-## 🧰 Features
+## 🧠 Core Logic (Click-based)
 
-- 📆 Auto-detects current, previous, and next month
-- 🛠️ Lets you input:
-  - Office holidays
-  - Personal leave days
-- ✅ Calculates how many days you need to go to office
-- 📉 Highlights selected days, holidays, and remaining working days
-- 🚀 Responsive and lightweight UI
-- 🔄 Real-time feedback on "Go to Office" count
+1. **Working Days** = Total Days in Month - Weekends  
+2. **WFH-Eligible Days** = Working Days - Target Office Days (default: 10)  
+3. **Office Days Required** =  
+   ```
+   Target Office Days - (Marked Holidays + Personal Leaves)
+   ```
+4. **Remaining to Select** =  
+   ```
+   Office Days Required - Marked Office Days
+   ```
+5. If **Office Days Required** is less than `0`, it is set to `0`.
 
 ---
 
-## 💡 Example Use Case
+## 🔄 Logic Flow Diagram
 
-For **August**:
+```mermaid
+flowchart TD
+    A[Start] --> B[Get Total Days in Month]
+    B --> C[Subtract Weekends → Working Days]
+    C --> D[Set Target Office Days]
+    D --> E[Mark Holidays & Personal Leaves]
+    E --> F[Office Days Required = Target Office Days - (Holidays + Leaves)]
+    F --> G[If Office Days Required < 0 → Set to 0]
+    G --> H[Mark Office Days on Calendar]
+    H --> I[Remaining Days = Office Days Required - Marked Office Days]
+    I --> J[Display WFH-Eligible Days & Remaining Days]
+    J --> K[End]
+```
+
+---
+
+## 📌 Example
+
+For **August 2025**:
 - Total Days: 31  
 - Weekends: 10  
-- Holidays: 2 (Aug 15, 27)  
-- Personal Leaves: 2 (Aug 8, 14)  
-→ Working Days = 21 - 2 - 2 = **17**  
-→ Required Office Days = Minimum of **10**  
-→ You can choose **10** days to attend out of the remaining **17**
+- **Total Working Days** = 21  
+- Target Office Days = 10  
+- Holidays: Aug 15, 27  
+- Personal Leaves: Aug 8, 14  
+- Office Days Selected: Aug 4, 5, 6, 7  
+
+**Result:**
+- **WFH-Eligible Days** = 11  
+- **Office Days Required** = 6  
+- **Remaining to Select** = 2  
 
 ---
 
-## 🚀 Future Scope
-
-- 🗓️ Add support for recurring holidays and weekends
-- 🌐 Cloud sync or GitHub Gist for saving preferences
-- 📱 Mobile responsive app
-- 🧩 Add charts/visuals for monthly planning
+## 🛠️ How to Use
+1. Open the tracker in your browser.
+2. Use `< Previous` and `Next >` buttons to navigate months.
+3. Click on any date to cycle through the available statuses:
+   - Weekend (auto)
+   - Holiday
+   - Personal Leave
+   - Office Day
+   - Work From Home
+4. The counters will update automatically.
 
 ---
 
-## 🧑‍💻 Created by [Pavithran](https://github.com/Pavithran-P12)  
-_💖 Contributions, ideas, and feedback welcome!_
+## 📷 Screenshot
 
+![InOfficeIQ Screenshot](screenshot.png)
+
+---
+
+## 📄 License
+This project is open-source and available under the MIT License.
+
+---
+
+**Created with ❤️ by [Pavithran](https://github.com/YourGitHubUsername)**
