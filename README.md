@@ -36,19 +36,18 @@ The app is fully **click-based** — select days directly on the calendar to mar
 
 ## 🔄 Logic Flow Diagram
 
-```mermaid
-flowchart TD
-    A[Start] --> B[Get Total Days in Month]
-    B --> C[Subtract Weekends → Working Days]
-    C --> D[Set Target Office Days]
-    D --> E[Mark Holidays & Personal Leaves]
-    E --> F[Office Days Required = Target Office Days - (Holidays + Leaves)]
-    F --> G[If Office Days Required < 0 → Set to 0]
-    G --> H[Mark Office Days on Calendar]
-    H --> I[Remaining Days = Office Days Required - Marked Office Days]
-    I --> J[Display WFH-Eligible Days & Remaining Days]
-    J --> K[End]
-```
+1. **Find Total Working Days**  
+   `Total Working Days = Total Days in Month - Weekends`
+
+2. **Calculate WFH-Eligible Days**  
+   `WFH-Eligible Days = Total Working Days - Target Office Days`
+
+3. **Adjust Target Based on Holidays & Leaves**  
+   `Required Office Days = Target Office Days - (Holidays + Personal Leaves)`
+
+4. **Final Remaining Days**  
+   The app shows how many **more days** you must attend the office after accounting for all holidays and leaves.
+
 
 ---
 
@@ -80,13 +79,6 @@ For **August 2025**:
    - Office Day
    - Work From Home
 4. The counters will update automatically.
-
----
-
-## 📷 Screenshot
-
-![InOfficeIQ Screenshot](screenshot.png)
-
 ---
 
 ## 📄 License
