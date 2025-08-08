@@ -20,22 +20,6 @@ The app is fully **click-based** — select days directly on the calendar to mar
 
 ## 🧠 Core Logic (Click-based)
 
-1. **Working Days** = Total Days in Month - Weekends  
-2. **WFH-Eligible Days** = Working Days - Target Office Days (default: 10)  
-3. **Office Days Required** =  
-   ```
-   Target Office Days - (Marked Holidays + Personal Leaves)
-   ```
-4. **Remaining to Select** =  
-   ```
-   Office Days Required - Marked Office Days
-   ```
-5. If **Office Days Required** is less than `0`, it is set to `0`.
-
----
-
-## 🔄 Logic Flow Diagram
-
 1. **Find Total Working Days**  
    `Total Working Days = Total Days in Month - Weekends`
 
