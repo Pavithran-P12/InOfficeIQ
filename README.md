@@ -79,10 +79,6 @@ For **August 2025**:
    - Office Day
    - Work From Home
 4. The counters will update automatically.
----
-
-## 📄 License
-This project is open-source and available under the MIT License.
 
 ---
 
