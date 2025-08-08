@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Work Days Tracker</title>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="calendar-icon">📅</span>InOfficeIQ</h1>
+
+        <div class="target-days form-row">
+            <label for="target-days">Target Office Days:</label>
+            <input type="number" id="target-days" name="target-days" value="10" min="1">
+        </div>
+
+        <div class="month-navigation">
+            <button id="prev-month" class="nav-btn">← Previous</button>
+            <div id="current-month-display">August 2025</div>
+            <button id="next-month" class="nav-btn">Next →</button>
+        </div>
+        
+        <div class="office-days-remaining">
+            <div class="remaining-count"><span id="big-remaining-count">0</span></div>
+            <div class="remaining-label">Office Days Remaining</div>
+        </div>
+
+        <div class="legend-container">
+            <div class="legend-title">Click on dates to toggle status:</div>
+            <div class="legend">
+                <div class="legend-item"><span class="color-box weekend"></span> Weekend</div>
+                <div class="legend-item"><span class="color-box holiday"></span> Holiday</div>
+                <div class="legend-item"><span class="color-box leave"></span> Personal Leave</div>
+                <div class="legend-item"><span class="color-box office-day"></span> Office Day</div>
+                <div class="legend-item"><span class="color-box wfh-day"></span> Work From Home</div>
+            </div>
+        </div>
+        
+        <div class="calendar-container" id="calendar-container">
+            <table class="calendar">
+                <tr class="calendar-header">
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+                <!-- Calendar rows will be generated here -->
+            </table>
+        </div>
+
+        <div class="summary">
+            <div id="days-summary" class="summary-box">
+                <h3>This Month</h3>
+                <p>Total Working Days: <span id="total-workdays">0</span></p>
+                <p>Holidays: <span id="holiday-count">0</span>, Leaves: <span id="leave-count">0</span></p>
+                <p>Days Selected: <span id="days-selected">0</span></p>
+            </div>
+            <div id="remaining-summary" class="summary-box">
+                <h3>Target Status</h3>
+                <p>Required Office Days: <span id="target-display">10</span></p>
+                <p>WFH-Eligible Days: <span id="wfh-days">0</span></p>
+                <p>Remaining to Select: <span id="remaining-days">10</span></p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Created with <span class="heart">❤</span> by <a href="https://github.com/Pavithran-P12" target="_blank" style="text-decoration: none; color: inherit;">
+        Pavithran
+    </a>
+        </div>
+    </div>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f7f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2a4d69;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calendar-icon {
+            margin-right: 10px;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            background: #f0f7ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .target-days label {
+            margin-right: 10px;
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+        #target-days {
+            width: 60px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 5px;
+        }
+        .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        #current-month-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2a4d69;
+            flex-grow: 1;
+        }
+        .nav-btn {
+            background: #2a4d69;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 12px;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: #355c7d;
+            font-weight: 600;
+        }
+        .input-row {
+            display: flex;
+            gap: 5px;
+        }
+        .date-input {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+            flex-grow: 1;
+        }
+        button {
+            background: #2a4d69;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        button:hover {
+            background: #1e3550;
+        }
+        .date-list {
+            min-height: 24px;
+            margin-bottom: 10px;
+        }
+        .date-chip {
+            display: inline-block;
+            background: #e3eaf2;
+            color: #2a4d69;
+            border-radius: 12px;
+            padding: 2px 8px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.85em;
+            position: relative;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #b23b3b;
+            font-weight: bold;
+            margin-left: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            padding: 0;
+        }
+        .calendar-container {
+            margin-top: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar-header th {
+            background: #2a4d69;
+            color: white;
+            padding: 8px 0;
+            text-align: center;
+            font-weight: normal;
+        }
+        .calendar td {
+            padding: 6px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            height: 32px;
+            width: 14.28%;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        .calendar td:hover:not(.empty):not(.weekend) {
+            background-color: #f0f7ff;
+        }
+        .calendar .empty {
+            background: #f9f9f9;
+        }
+        .calendar .weekend {
+            background: #f0f0f0;
+            color: #999;
+        }
+        .calendar .holiday {
+            background: #ffe6e6;
+            color: #d94c4c;
+        }
+        .calendar .leave {
+            background: #ffc1c1;
+            color: #b23b3b;
+        }
+        .calendar .office-day {
+            background: #c2e0ff;
+            color: #2a4d69;
+            font-weight: bold;
+        }
+        .calendar .wfh-day {
+            background: #e6ffe6;
+            color: #2a694d;
+            font-weight: bold;
+        }
+        
+        /* Legend styles */
+        .office-days-remaining {
+            background: #2a4d69;
+            color: white;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .remaining-count {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .remaining-label {
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        
+        .legend-container {
+            margin: 20px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #355c7d;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+        .color-box.weekend {
+            background: #f0f0f0;
+        }
+        .color-box.holiday {
+            background: #ffe6e6;
+        }
+        .color-box.leave {
+            background: #ffc1c1;
+        }
+        .color-box.office-day {
+            background: #c2e0ff;
+        }
+        .color-box.wfh-day {
+            background: #e6ffe6;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        .summary-box {
+            flex: 1;
+            padding: 10px;
+            background: #f0f7ff;
+            border-radius: 5px;
+            color: #2a4d69;
+            text-align: center;
+        }
+        .summary-box h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .summary-box p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #8a9aa8;
+            border-top: 1px solid #e8eef2;
+        }
+        
+        .heart {
+            color: #ff5d5d;
+            display: inline-block;
+            animation: heartbeat 1.5s infinite;
+            transform-origin: center;
+            margin: 0 2px;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.25); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.25); }
+            60% { transform: scale(1); }
+        }
+    </style>
+    <script>
+        // Initialize data
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        // Arrays to hold dates
+        const holidaysArr = [];
+        const leavesArr = [];
+        const officeDaysArr = [];
+        const wfhDaysArr = [];
+        
+        // Load data from localStorage if available
+        function loadSavedData() {
+            if (localStorage.getItem('workDaysTracker')) {
+                try {
+                    const data = JSON.parse(localStorage.getItem('workDaysTracker'));
+                    if (data.holidays) data.holidays.forEach(d => holidaysArr.push(d));
+                    if (data.leaves) data.leaves.forEach(d => leavesArr.push(d));
+                    if (data.officeDays) data.officeDays.forEach(d => officeDaysArr.push(d));
+                    if (data.wfhDays) data.wfhDays.forEach(d => wfhDaysArr.push(d));
+                    if (data.targetDays) document.getElementById('target-days').value = data.targetDays;
+                } catch(e) {
+                    console.error("Error loading saved data:", e);
+                }
+            }
+            
+            // Initialize with example data if no data exists
+            if (holidaysArr.length === 0 && leavesArr.length === 0 && officeDaysArr.length === 0) {
+                console.log("Initializing with example data");
+                
+                // Holiday dates
+                holidaysArr.push('2025-08-15');
+                holidaysArr.push('2025-08-27');
+                
+                // Personal leave dates
+                leavesArr.push('2025-08-08');
+                leavesArr.push('2025-08-14');
+                
+                // Additional leaves that appear in your screenshot
+                leavesArr.push('2025-08-15');  // Aug 15 appears red in your screenshot
+                leavesArr.push('2025-08-27');  // Aug 27 appears red in your screenshot
+                
+                console.log("After init - holidays:", holidaysArr);
+                console.log("After init - leaves:", leavesArr);
+            }
+        }
+        
+        // Save data to localStorage
+        function saveData() {
+            const data = {
+                holidays: holidaysArr,
+                leaves: leavesArr,
+                officeDays: officeDaysArr,
+                wfhDays: wfhDaysArr,
+                targetDays: document.getElementById('target-days').value
+            };
+            localStorage.setItem('workDaysTracker', JSON.stringify(data));
+        }
+        
+        // Parse date from input format
+        function parseDateInput(input) {
+            // Check if the input is in dd-mm-yyyy format
+            const parts = input.split('-');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const year = parseInt(parts[2]);
+                const date = new Date(year, month, day);
+                return date.toISOString().slice(0, 10); // Convert to YYYY-MM-DD
+            }
+            return null;
+        }
+        
+        // Format date to display format
+        function formatDate(date, includeWeekday = false) {
+            const day = date.getDate();
+            const month = date.toLocaleString('default', { month: 'short' });
+            
+            if (includeWeekday) {
+                const weekday = date.toLocaleString('default', { weekday: 'short' });
+                return `${weekday}, ${month} ${day}`;
+            }
+            return `${month} ${day}`;
+        }
+        
+        // Update the month display and calendar when navigating
+        function updateMonth() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                              "July", "August", "September", "October", "November", "December"];
+            document.getElementById('current-month-display').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            updateCalendar();
+            updateSummary();
+        }
+        
+        // Generate calendar for current month
+        function updateCalendar() {
+            const calendarContainer = document.getElementById('calendar-container');
+            const targetDays = parseInt(document.getElementById('target-days').value) || 10;
+            
+            // Get first day and days in month
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Create calendar table
+            let calendarHTML = '<table class="calendar">';
+            calendarHTML += '<tr class="calendar-header"><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr>';
+            
+            // Initialize date counter
+            let date = 1;
+            
+            // Create calendar rows
+            for (let i = 0; i < 6; i++) {
+                // Break if we've handled all days
+                if (date > daysInMonth) break;
+                
+                calendarHTML += '<tr>';
+                
+                // Create calendar cells for each day
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDay) {
+                        // Empty cells before month starts
+                        calendarHTML += '<td class="empty"></td>';
+                    } else if (date > daysInMonth) {
+                        // Empty cells after month ends
+                        calendarHTML += '<td class="empty"></td>';
+                    } else {
+                        // Create formatted date string (using local date to avoid timezone issues)
+                        const currentDateObj = new Date(currentYear, currentMonth, date);
+                        // Format as YYYY-MM-DD
+                        const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
+                        
+                        // Get day of week directly from j (column index)
+                        // j is 0-6 representing Sun-Sat in the calendar
+                        const isWeekend = j === 0 || j === 6; // Sunday or Saturday
+                        
+                        // Determine cell class
+                        let cellClass = '';
+                        
+                        if (isWeekend) {
+                            cellClass = 'weekend';
+                        } else if (holidaysArr.includes(dateStr)) {
+                            cellClass = 'holiday';
+                        } else if (leavesArr.includes(dateStr)) {
+                            cellClass = 'leave';
+                        } else if (officeDaysArr.includes(dateStr)) {
+                            cellClass = 'office-day';
+                        } else if (wfhDaysArr.includes(dateStr)) {
+                            cellClass = 'wfh-day';
+                        } else {
+                            cellClass = 'workday';
+                        }
+                        
+                        // Add today's date highlight
+                        const today = new Date();
+                        if (date === today.getDate() && 
+                            currentMonth === today.getMonth() && 
+                            currentYear === today.getFullYear()) {
+                            cellClass += ' today';
+                        }
+                        
+                        // Create cell with click handler
+                        calendarHTML += `<td class="${cellClass}" data-date="${dateStr}" onclick="toggleWorkDay('${dateStr}')">`;
+                        calendarHTML += date;
+                        calendarHTML += '</td>';
+                        
+                        date++;
+                    }
+                }
+                
+                calendarHTML += '</tr>';
+            }
+            
+            calendarHTML += '</table>';
+            calendarContainer.innerHTML = calendarHTML;
+        }
+        
+        // Toggle date status (holiday, leave, office, wfh)
+        window.toggleWorkDay = function(dateStr) {
+            // Create date properly to avoid timezone issues (YYYY-MM-DD)
+            const parts = dateStr.split('-');
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1; // 0-based month
+            const day = parseInt(parts[2]);
+            
+            // Create date with explicit year, month, day to avoid timezone issues
+            const date = new Date(year, month, day);
+            const dayOfWeek = date.getDay();
+            
+            // Log for debugging
+            console.log("Clicked date:", dateStr, "Day of week:", dayOfWeek, "Full date:", date);
+            
+            // Cannot select weekends (0=Sunday, 6=Saturday)
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                console.log("Weekend detected - cannot select");
+                return;
+            }
+            
+            // Check current status and cycle through options
+            if (holidaysArr.includes(dateStr)) {
+                // Holiday -> Leave
+                const index = holidaysArr.indexOf(dateStr);
+                holidaysArr.splice(index, 1);
+                leavesArr.push(dateStr);
+            } 
+            else if (leavesArr.includes(dateStr)) {
+                // Leave -> Office Day
+                const index = leavesArr.indexOf(dateStr);
+                leavesArr.splice(index, 1);
+                officeDaysArr.push(dateStr);
+            } 
+            else if (officeDaysArr.includes(dateStr)) {
+                // Office Day -> WFH
+                const index = officeDaysArr.indexOf(dateStr);
+                officeDaysArr.splice(index, 1);
+                wfhDaysArr.push(dateStr);
+            }
+            else if (wfhDaysArr.includes(dateStr)) {
+                // WFH -> Normal workday (no status)
+                const index = wfhDaysArr.indexOf(dateStr);
+                wfhDaysArr.splice(index, 1);
+            }
+            else {
+                // Normal workday -> Holiday
+                holidaysArr.push(dateStr);
+            }
+            
+            updateCalendar();
+            updateSummary();
+            saveData();
+        };
+        
+        // Calculate working days and office days needed
+        function calculateDays() {
+            const targetDays = parseInt(document.getElementById('target-days').value) || 10;
+            
+            // Get total days in month
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            let totalWorkingDays = 0;
+            let skipDays = 0;
+            let selectedDaysInMonth = 0;
+            let weekendCount = 0;
+            
+            // Calculate workdays and skipDays in current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                // Format as YYYY-MM-DD consistently with our other code
+                const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                const dayOfWeek = date.getDay();
+                
+                // Count weekends (Saturday & Sunday)
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    weekendCount++;
+                    continue;
+                }
+                
+                // Count working days (excluding weekends)
+                totalWorkingDays++;
+                
+                // Count holidays and leaves that fall on working days → SkipDays
+                if (holidaysArr.includes(dateStr) || leavesArr.includes(dateStr)) {
+                    skipDays++;
+                    console.log(`SkipDay found: ${dateStr} - Holiday: ${holidaysArr.includes(dateStr)}, Leave: ${leavesArr.includes(dateStr)}`);
+                }
+                
+                // Count selected days in current month
+                if (officeDaysArr.includes(dateStr)) {
+                    selectedDaysInMonth++;
+                }
+            }
+            
+            // Calculate Work From Home (WFH) Days = Total Working Days - 10
+            const wfhDays = Math.max(totalWorkingDays - targetDays, 0);
+            
+            // Final required office days: RequiredOfficeDays = max(10 - SkipDays, 0)
+            const requiredOfficeDays = Math.max(targetDays - skipDays, 0);
+            
+            // Calculate remaining days to select
+            const remainingDays = Math.max(requiredOfficeDays - selectedDaysInMonth, 0);
+            
+            // Count holidays and leaves separately for display
+            const holidayCount = holidaysArr.filter(date => {
+                const [year, month] = date.split('-').map(Number);
+                return year === currentYear && month === currentMonth + 1;
+            }).length;
+            
+            const leaveCount = leavesArr.filter(date => {
+                const [year, month] = date.split('-').map(Number);
+                return year === currentYear && month === currentMonth + 1;
+            }).length;
+            
+            console.log(`Debug counts - Holidays: ${holidayCount}, Leaves: ${leaveCount}, Skip Days: ${skipDays}`);
+            console.log('All holidays:', holidaysArr);
+            console.log('All leaves:', leavesArr);
+            
+            return {
+                totalDays: daysInMonth,
+                weekendCount: weekendCount,
+                totalWorkingDays: totalWorkingDays, // WD = Total days - Weekends
+                skipDays: skipDays,                 // Holidays and leaves on working days
+                holidayCount: holidayCount,         // Actual count of holidays in current month
+                leaveCount: leaveCount,             // Actual count of leaves in current month
+                wfhDays: wfhDays,                   // WFH Days = WD - 10
+                requiredOfficeDays: requiredOfficeDays, // max(10 - SkipDays, 0)
+                selectedDaysInMonth: selectedDaysInMonth,
+                remainingDays: remainingDays
+            };
+        }
+        
+        // Update summary section
+        function updateSummary() {
+            const targetDays = parseInt(document.getElementById('target-days').value) || 10;
+            const stats = calculateDays();
+            
+            // Update summary information
+            document.getElementById('total-workdays').textContent = stats.totalWorkingDays;
+            document.getElementById('days-selected').textContent = stats.selectedDaysInMonth;
+            document.getElementById('target-display').textContent = stats.requiredOfficeDays;
+            document.getElementById('remaining-days').textContent = stats.remainingDays;
+            
+            // Update the big remaining days count
+            document.getElementById('big-remaining-count').textContent = stats.remainingDays;
+            
+            // Update holiday and leave counts separately
+            document.getElementById('holiday-count').textContent = stats.holidayCount;
+            document.getElementById('leave-count').textContent = stats.leaveCount;
+            
+            // Update summary sections with additional info if the HTML elements exist
+            if (document.getElementById('wfh-days')) {
+                document.getElementById('wfh-days').textContent = stats.wfhDays;
+            }
+            if (document.getElementById('skip-days')) {
+                document.getElementById('skip-days').textContent = stats.skipDays;
+            }
+        }
+        
+        // Event listeners for month navigation
+        document.getElementById('prev-month').onclick = () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateMonth();
+        };
+        
+        document.getElementById('next-month').onclick = () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateMonth();
+        };
+        
+        // Handle target days change
+        document.getElementById('target-days').onchange = () => {
+            updateCalendar();
+            updateSummary();
+            saveData();
+        };
+        
+        // Helper function to debug date issues
+        function debugDates() {
+            console.log("=== DEBUG DATE INFORMATION ===");
+            console.log("Current Year/Month:", currentYear, currentMonth);
+            
+            // Log all leaves
+            console.log("All leaves:", leavesArr);
+            
+            // Check each leave date format
+            leavesArr.forEach(dateStr => {
+                const parts = dateStr.split('-');
+                console.log(`Leave date: ${dateStr}, parsed as Year: ${parts[0]}, Month: ${parts[1]}, Day: ${parts[2]}`);
+                
+                // Check if this date is in current month
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]);
+                const isCurrentMonth = (year === currentYear && month === currentMonth + 1);
+                console.log(`  Is in current month? ${isCurrentMonth}`);
+            });
+            
+            // Check specific dates from your example (2025-08-08, 2025-08-14)
+            const testDate1 = "2025-08-08";
+            const testDate2 = "2025-08-14";
+            console.log(`Is ${testDate1} in leaves array? ${leavesArr.includes(testDate1)}`);
+            console.log(`Is ${testDate2} in leaves array? ${leavesArr.includes(testDate2)}`);
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedData();
+            updateMonth();
+            // Run debug after a short delay to ensure data is loaded
+            setTimeout(debugDates, 1000);
+        });
+    </script>
+</body>
+</html>
