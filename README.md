@@ -66,4 +66,4 @@ For **August 2025**:
 
 ---
 
-**Created with ❤️ by [Pavithran](https://github.com/YourGitHubUsername)**
+**Created with ❤️ by [Pavithran](https://pavithran.tech)**
