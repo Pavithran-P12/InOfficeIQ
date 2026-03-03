@@ -20,8 +20,6 @@
     --clr-wfh-text: #166534;
     --clr-holiday: #fef3c7;
     --clr-holiday-text: #b45309;
-    --clr-leave: #ffe4e6;
-    --clr-leave-text: #be123c;
     --clr-weekend: #f1f5f9;
     --clr-weekend-text: #94a3b8;
     --radius: 12px;
@@ -237,7 +235,7 @@ body {
 /* ===== Stats Bar ===== */
 .stats-bar {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     margin-bottom: 14px;
 }
@@ -276,7 +274,6 @@ body {
 .stat-remaining .stat-value { color: var(--clr-primary); }
 .stat-office .stat-value { color: var(--clr-office-text); }
 .stat-holidays .stat-value { color: var(--clr-holiday-text); }
-.stat-leaves .stat-value { color: var(--clr-leave-text); }
 
 /* ===== Mode Selector ===== */
 .mode-selector {
@@ -349,10 +346,10 @@ body {
 }
 
 .mode-holiday { background: var(--clr-holiday); color: var(--clr-holiday-text); }
-.mode-leave { background: var(--clr-leave); color: var(--clr-leave-text); }
 .mode-office { background: var(--clr-office); color: var(--clr-office-text); }
 .mode-wfh { background: var(--clr-wfh); color: var(--clr-wfh-text); }
 .mode-clear { background: var(--clr-weekend); color: var(--clr-weekend-text); }
+.mode-reset { background: #fee2e2; color: #dc2626; }
 
 /* ===== Calendar ===== */
 .calendar-container {
@@ -426,12 +423,6 @@ body {
     font-weight: 600;
 }
 
-.calendar .leave {
-    background: var(--clr-leave);
-    color: var(--clr-leave-text);
-    font-weight: 600;
-}
-
 .calendar .office-day {
     background: var(--clr-office);
     color: var(--clr-office-text);
@@ -444,9 +435,117 @@ body {
     font-weight: 500;
 }
 
-.calendar .today {
-    box-shadow: inset 0 0 0 2px var(--clr-accent);
-    border-radius: 4px;
+/* ===== Custom Modal ===== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+    animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-card {
+    background: var(--clr-surface);
+    border-radius: 16px;
+    padding: 28px 24px 22px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    animation: modalSlideUp 0.25s ease;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.modal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--clr-text);
+    margin-bottom: 6px;
+}
+
+.modal-message {
+    font-size: 0.85rem;
+    color: var(--clr-text-muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    letter-spacing: 0.02em;
+}
+
+.modal-btn:active {
+    transform: scale(0.96);
+}
+
+.modal-btn-cancel {
+    background: var(--clr-bg);
+    color: var(--clr-text-muted);
+    border: 1px solid var(--clr-border);
+}
+
+.modal-btn-cancel:hover {
+    background: var(--clr-border);
+}
+
+.modal-btn-confirm {
+    background: var(--clr-primary);
+    color: white;
+}
+
+.modal-btn-confirm:hover {
+    background: var(--clr-primary-light);
+    box-shadow: 0 2px 8px rgba(30,58,95,0.25);
+}
+
+.modal-btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
+.modal-btn-danger:hover {
+    background: #b91c1c;
+    box-shadow: 0 2px 8px rgba(220,38,38,0.25);
 }
 
 /* ===== Legend Bar ===== */
@@ -469,7 +568,6 @@ body {
 
 .weekend-chip { background: var(--clr-weekend); color: var(--clr-weekend-text); }
 .holiday-chip { background: var(--clr-holiday); color: var(--clr-holiday-text); }
-.leave-chip { background: var(--clr-leave); color: var(--clr-leave-text); }
 .office-chip { background: var(--clr-office); color: var(--clr-office-text); }
 .wfh-chip { background: var(--clr-wfh); color: var(--clr-wfh-text); }
 

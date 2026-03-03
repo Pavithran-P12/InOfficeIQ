@@ -5,11 +5,10 @@ let currentYear = currentDate.getFullYear();
 
 // Arrays to hold dates
 const holidaysArr = [];
-const leavesArr = [];
 const officeDaysArr = [];
 const wfhDaysArr = [];
 
-// Current painting mode (holiday, leave, office, wfh, clear)
+// Current painting mode (holiday, office, wfh, clear)
 let currentMode = 'wfh';
 
 // Load data from localStorage if available
@@ -18,7 +17,8 @@ function loadSavedData() {
         try {
             const data = JSON.parse(localStorage.getItem('workDaysTracker'));
             if (data.holidays) data.holidays.forEach(d => holidaysArr.push(d));
-            if (data.leaves) data.leaves.forEach(d => leavesArr.push(d));
+            // Migrate old leaves into holidays
+            if (data.leaves) data.leaves.forEach(d => { if (!holidaysArr.includes(d)) holidaysArr.push(d); });
             if (data.officeDays) data.officeDays.forEach(d => officeDaysArr.push(d));
             if (data.wfhDays) data.wfhDays.forEach(d => wfhDaysArr.push(d));
             if (data.targetDays) document.getElementById('target-days').value = data.targetDays;
@@ -28,23 +28,16 @@ function loadSavedData() {
     }
     
     // Initialize with example data if no data exists
-    if (holidaysArr.length === 0 && leavesArr.length === 0 && officeDaysArr.length === 0) {
+    if (holidaysArr.length === 0 && officeDaysArr.length === 0) {
         console.log("Initializing with example data");
         
         // Holiday dates
         holidaysArr.push('2025-08-15');
         holidaysArr.push('2025-08-27');
-        
-        // Personal leave dates
-        leavesArr.push('2025-08-08');
-        leavesArr.push('2025-08-14');
-        
-        // Additional leaves that appear in your screenshot
-        leavesArr.push('2025-08-15');  // Aug 15 appears red in your screenshot
-        leavesArr.push('2025-08-27');  // Aug 27 appears red in your screenshot
+        holidaysArr.push('2025-08-08');
+        holidaysArr.push('2025-08-14');
         
         console.log("After init - holidays:", holidaysArr);
-        console.log("After init - leaves:", leavesArr);
     }
 }
 
@@ -52,7 +45,6 @@ function loadSavedData() {
 function saveData() {
     const data = {
         holidays: holidaysArr,
-        leaves: leavesArr,
         officeDays: officeDaysArr,
         wfhDays: wfhDaysArr,
         targetDays: document.getElementById('target-days').value
@@ -143,8 +135,6 @@ function updateCalendar() {
                     cellClass = 'weekend';
                 } else if (holidaysArr.includes(dateStr)) {
                     cellClass = 'holiday';
-                } else if (leavesArr.includes(dateStr)) {
-                    cellClass = 'leave';
                 } else if (officeDaysArr.includes(dateStr)) {
                     cellClass = 'office-day';
                 } else if (wfhDaysArr.includes(dateStr)) {
@@ -152,14 +142,6 @@ function updateCalendar() {
                 } else {
                     // Default: all untagged weekdays are WFH
                     cellClass = 'wfh-day';
-                }
-                
-                // Add today's date highlight
-                const today = new Date();
-                if (date === today.getDate() && 
-                    currentMonth === today.getMonth() && 
-                    currentYear === today.getFullYear()) {
-                    cellClass += ' today';
                 }
                 
                 // Create cell with click handler
@@ -189,7 +171,7 @@ window.setMode = function(mode) {
 
 // Remove a date from all arrays
 function removeFromAll(dateStr) {
-    const arrays = [holidaysArr, leavesArr, officeDaysArr, wfhDaysArr];
+    const arrays = [holidaysArr, officeDaysArr, wfhDaysArr];
     arrays.forEach(arr => {
         const idx = arr.indexOf(dateStr);
         if (idx !== -1) arr.splice(idx, 1);
@@ -199,7 +181,6 @@ function removeFromAll(dateStr) {
 // Get which array a date currently belongs to
 function getCurrentStatus(dateStr) {
     if (holidaysArr.includes(dateStr)) return 'holiday';
-    if (leavesArr.includes(dateStr)) return 'leave';
     if (officeDaysArr.includes(dateStr)) return 'office';
     if (wfhDaysArr.includes(dateStr)) return 'wfh';
     return 'none';
@@ -222,7 +203,6 @@ window.toggleWorkDay = function(dateStr) {
     
     // If clicking a date that already has the selected mode, toggle it off
     if ((currentMode === 'holiday' && status === 'holiday') ||
-        (currentMode === 'leave' && status === 'leave') ||
         (currentMode === 'office' && status === 'office') ||
         (currentMode === 'wfh' && status === 'wfh') ||
         currentMode === 'clear') {
@@ -232,7 +212,6 @@ window.toggleWorkDay = function(dateStr) {
         removeFromAll(dateStr);
         switch (currentMode) {
             case 'holiday': holidaysArr.push(dateStr); break;
-            case 'leave':   leavesArr.push(dateStr); break;
             case 'office':  officeDaysArr.push(dateStr); break;
             case 'wfh':     wfhDaysArr.push(dateStr); break;
         }
@@ -271,10 +250,10 @@ function calculateDays() {
         // Count working days (excluding weekends)
         totalWorkingDays++;
         
-        // Count holidays and leaves that fall on working days → SkipDays
-        if (holidaysArr.includes(dateStr) || leavesArr.includes(dateStr)) {
+        // Count holidays that fall on working days → SkipDays
+        if (holidaysArr.includes(dateStr)) {
             skipDays++;
-            console.log(`SkipDay found: ${dateStr} - Holiday: ${holidaysArr.includes(dateStr)}, Leave: ${leavesArr.includes(dateStr)}`);
+            console.log(`SkipDay found: ${dateStr} - Holiday: ${holidaysArr.includes(dateStr)}`);
         }
         
         // Count selected days in current month
@@ -292,20 +271,14 @@ function calculateDays() {
     // Calculate remaining days to select
     const remainingDays = Math.max(requiredOfficeDays - selectedDaysInMonth, 0);
     
-    // Count holidays and leaves separately for display
+    // Count holidays for display
     const holidayCount = holidaysArr.filter(date => {
         const [year, month] = date.split('-').map(Number);
         return year === currentYear && month === currentMonth + 1;
     }).length;
     
-    const leaveCount = leavesArr.filter(date => {
-        const [year, month] = date.split('-').map(Number);
-        return year === currentYear && month === currentMonth + 1;
-    }).length;
-    
-    console.log(`Debug counts - Holidays: ${holidayCount}, Leaves: ${leaveCount}, Skip Days: ${skipDays}`);
+    console.log(`Debug counts - Holidays: ${holidayCount}, Skip Days: ${skipDays}`);
     console.log('All holidays:', holidaysArr);
-    console.log('All leaves:', leavesArr);
     
     return {
         totalDays: daysInMonth,
@@ -313,7 +286,6 @@ function calculateDays() {
         totalWorkingDays: totalWorkingDays, // WD = Total days - Weekends
         skipDays: skipDays,                 // Holidays and leaves on working days
         holidayCount: holidayCount,         // Actual count of holidays in current month
-        leaveCount: leaveCount,             // Actual count of leaves in current month
         wfhDays: wfhDays,                   // WFH Days = WD - 10
         requiredOfficeDays: requiredOfficeDays, // max(10 - SkipDays, 0)
         selectedDaysInMonth: selectedDaysInMonth,
@@ -335,9 +307,8 @@ function updateSummary() {
     // Update the big remaining days count
     document.getElementById('big-remaining-count').textContent = stats.remainingDays;
     
-    // Update holiday and leave counts separately
+    // Update holiday count
     document.getElementById('holiday-count').textContent = stats.holidayCount;
-    document.getElementById('leave-count').textContent = stats.leaveCount;
     
     // Update summary sections with additional info if the HTML elements exist
     if (document.getElementById('wfh-days')) {
@@ -391,32 +362,24 @@ document.getElementById('target-plus').onclick = () => {
     input.dispatchEvent(new Event('change'));
 };
 
-// Helper function to debug date issues
-function debugDates() {
-    console.log("=== DEBUG DATE INFORMATION ===");
-    console.log("Current Year/Month:", currentYear, currentMonth);
-    
-    // Log all leaves
-    console.log("All leaves:", leavesArr);
-    
-    // Check each leave date format
-    leavesArr.forEach(dateStr => {
-        const parts = dateStr.split('-');
-        console.log(`Leave date: ${dateStr}, parsed as Year: ${parts[0]}, Month: ${parts[1]}, Day: ${parts[2]}`);
-        
-        // Check if this date is in current month
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]);
-        const isCurrentMonth = (year === currentYear && month === currentMonth + 1);
-        console.log(`  Is in current month? ${isCurrentMonth}`);
+// Clear All - reset everything to defaults
+window.clearAll = function() {
+    showModal({
+        icon: '🗑️',
+        title: 'Reset Everything?',
+        message: 'All your selections will be cleared and settings restored to defaults.',
+        confirmText: 'Reset',
+        confirmClass: 'modal-btn-danger',
+        onConfirm: () => {
+            holidaysArr.length = 0;
+            officeDaysArr.length = 0;
+            wfhDaysArr.length = 0;
+            document.getElementById('target-days').value = 10;
+            localStorage.removeItem('workDaysTracker');
+            updateMonth();
+        }
     });
-    
-    // Check specific dates from your example (2025-08-08, 2025-08-14)
-    const testDate1 = "2025-08-08";
-    const testDate2 = "2025-08-14";
-    console.log(`Is ${testDate1} in leaves array? ${leavesArr.includes(testDate1)}`);
-    console.log(`Is ${testDate2} in leaves array? ${leavesArr.includes(testDate2)}`);
-}
+};
 
 // Download page as image
 window.downloadAsImage = function() {
@@ -424,14 +387,23 @@ window.downloadAsImage = function() {
                       "July", "August", "September", "October", "November", "December"];
     const monthLabel = `${monthNames[currentMonth]}_${currentYear}`;
     
-    if (!confirm(`Download your ${monthNames[currentMonth]} ${currentYear} plan as an image?`)) {
-        return;
-    }
+    showModal({
+        icon: '📸',
+        title: 'Download Plan',
+        message: `Save your ${monthNames[currentMonth]} ${currentYear} plan as an image.`,
+        confirmText: 'Download',
+        confirmClass: 'modal-btn-confirm',
+        onConfirm: () => {
+            generateImage(monthLabel, monthNames);
+        }
+    });
+};
+
+function generateImage(monthLabel, monthNames) {
 
     // Gather stats
     const officeCount = document.getElementById('days-selected').textContent;
     const holidayCount = document.getElementById('holiday-count').textContent;
-    const leaveCount = document.getElementById('leave-count').textContent;
     const remainingCount = document.getElementById('big-remaining-count').textContent;
     const totalWorkdays = document.getElementById('total-workdays').textContent;
     const wfhEligible = document.getElementById('wfh-days').textContent;
@@ -463,8 +435,7 @@ window.downloadAsImage = function() {
     const statItems = [
         { val: remainingCount, label: 'Remaining', bg: '#eff6ff', color: '#1e40af' },
         { val: officeCount, label: 'Office', bg: '#dbeafe', color: '#1e40af' },
-        { val: holidayCount, label: 'Holidays', bg: '#fef3c7', color: '#b45309' },
-        { val: leaveCount, label: 'Leaves', bg: '#ffe4e6', color: '#be123c' }
+        { val: holidayCount, label: 'Holidays', bg: '#fef3c7', color: '#b45309' }
     ];
     statItems.forEach(s => {
         const card = document.createElement('div');
@@ -528,14 +499,58 @@ window.downloadAsImage = function() {
     }).catch(err => {
         document.body.removeChild(wrapper);
         console.error('Download failed:', err);
-        alert('Failed to generate image. Please try again.');
+        showModal({
+            icon: '⚠️',
+            title: 'Download Failed',
+            message: 'Something went wrong generating the image. Please try again.',
+            confirmText: 'OK',
+            confirmClass: 'modal-btn-confirm',
+            hideCancel: true
+        });
     });
-};
+}
+
+// Custom modal system
+function showModal({ icon, title, message, confirmText, confirmClass, onConfirm, hideCancel }) {
+    const overlay = document.getElementById('modal-overlay');
+    document.getElementById('modal-icon').textContent = icon || '';
+    document.getElementById('modal-title').textContent = title || '';
+    document.getElementById('modal-message').textContent = message || '';
+
+    const actionsEl = document.getElementById('modal-actions');
+    actionsEl.innerHTML = '';
+
+    function close() {
+        overlay.classList.remove('active');
+    }
+
+    if (!hideCancel) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'modal-btn modal-btn-cancel';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = close;
+        actionsEl.appendChild(cancelBtn);
+    }
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = `modal-btn ${confirmClass || 'modal-btn-confirm'}`;
+    confirmBtn.textContent = confirmText || 'OK';
+    confirmBtn.onclick = () => {
+        close();
+        if (onConfirm) onConfirm();
+    };
+    actionsEl.appendChild(confirmBtn);
+
+    // Close on overlay click
+    overlay.onclick = (e) => {
+        if (e.target === overlay) close();
+    };
+
+    overlay.classList.add('active');
+}
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     loadSavedData();
     updateMonth();
-    // Run debug after a short delay to ensure data is loaded
-    setTimeout(debugDates, 1000);
 });
